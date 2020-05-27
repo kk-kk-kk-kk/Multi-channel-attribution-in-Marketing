@@ -401,6 +401,7 @@ head(channel)</code></pre>
 ## 4      NA      NA     NA
 ## 5      NA      NA     NA
 ## 6      NA      NA     NA</code></pre>
+<p>Each column represents a touchpoint or channel and the each row represents the number of customers that had the corresponding touchpoint in their customer journey.</p>
 <p>Taking a quick look at the data we understand that it needs to be wrangled to make the data ready into a standard format before using Markov Models:</p>
 <p><em>Bring the data into the required standard format</em></p>
 <pre class="r"><code>library(tidyr)
@@ -455,6 +456,7 @@ head(df_grouped)</code></pre>
 ## 4 &quot;1 &gt; 1 &gt; 3 &gt; 13 &gt; 3 &gt; 20 &quot;               1
 ## 5 &quot;1 &gt; 1 &gt; 3 &gt; 17 &gt; 17 &quot;                   1
 ## 6 &quot;1 &gt; 1 &gt; 6 &gt; 1 &gt; 12 &gt; 20 &gt; 12 &quot;          1</code></pre>
+<p>New-Path variable indicates the customer journey path before a transaction.</p>
 <p>This is the final format of the data that now goes into the modeling.</p>
 <p><em>creating Heuristic Models</em></p>
 <pre class="r"><code>library(&quot;ChannelAttribution&quot;)
