@@ -1,0 +1,56 @@
+#Load the libraries
+library("ChannelAttribution")
+library("ggplot2")
+library("reshape")
+library("dplyr")
+library("plyr")
+library("reshape2")
+library("markovchain")
+library("plotly")
+
+channel = read.csv("Channel_attribution.csv", header = T)
+
+library(tidyr)
+channel$path = unite(channel, " > ", remove = T)
+
+new_data = channel$path
+colnames(new_data) = c("path")
+new_data = cbind(channel[, 1:21], new_data)
+str(new_data)
+
+library(stringr)
+new_data$path = str_replace_all(new_data$path, "_", " > ")
+
+head(new_data$path)
+
+new_data$conversion = ifelse(str_detect(new_data$path, "21"), 1, 0)
+
+df = as.data.frame(str_split_fixed(new_data$path,  "> 21", 2))
+colnames(df) = c("new_path", "V2")
+
+new_data = cbind(new_data, df$new_path)
+names(new_data)[names(new_data) == "df$new_path"] = "new_path"
+
+df = new_data[, c("new_path", "conversion")]
+
+df_grouped = df %>%
+  select(names(df)) %>%
+  group_by(new_path) %>%
+  summarise(conversion = sum(conversion))
+
+H = heuristic_models(df_grouped, 'new_path', 'conversion', var_value='conversion')
+M = markov_model(df_grouped, 'new_path', 'conversion', var_value='conversion', order = 1, seed = 123)
+
+R = merge(H, M, by='channel_name')
+
+R1 = R[, c("channel_name", "first_touch_conversions", "last_touch_conversions", 
+                              "linear_touch_conversions", "total_conversion")]
+
+R2 = melt(R1, id = "channel_name")
+
+# Plot the total conversions
+ggplot(R2, aes(channel_name, value, fill = variable)) +
+  geom_bar(stat='identity', position='dodge') +
+  ggtitle('TOTAL CONVERSIONS') +
+  xlab("Conversions")
+
